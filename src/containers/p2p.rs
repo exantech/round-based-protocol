@@ -71,18 +71,18 @@ impl<B> IntoIterator for P2PMsgs<B> {
     }
 }
 
-impl<M> MessageContainer for P2PMsgs<M> {
+impl<M: Clone> MessageContainer for P2PMsgs<M> {
     type Store = P2PMsgsStore<M>;
 }
 
 /// Receives P2P messages from every protocol participant
-pub struct P2PMsgsStore<M> {
+pub struct P2PMsgsStore<M: Clone> {
     party_i: u16,
     msgs: Vec<Option<M>>,
     msgs_left: usize,
 }
 
-impl<M> P2PMsgsStore<M> {
+impl<M: Clone> P2PMsgsStore<M> {
     /// Constructs store. Takes this party index and total number of parties.
     pub fn new(party_i: u16, parties_n: u16) -> Self {
         let parties_n = usize::from(parties_n);
@@ -103,9 +103,11 @@ impl<M> P2PMsgsStore<M> {
     pub fn messages_total(&self) -> usize {
         self.msgs.len()
     }
+
+    pub fn get_msgs(&self) -> Vec<Option<M>> { self.msgs.clone() }
 }
 
-impl<M> MessageStore for P2PMsgsStore<M> {
+impl<M: Clone> MessageStore for P2PMsgsStore<M> {
     type M = M;
     type Err = StoreErr;
     type Output = P2PMsgs<M>;

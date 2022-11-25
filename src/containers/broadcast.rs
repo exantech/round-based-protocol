@@ -71,18 +71,18 @@ impl<B> IntoIterator for BroadcastMsgs<B> {
     }
 }
 
-impl<M> MessageContainer for BroadcastMsgs<M> {
+impl<M: Clone> MessageContainer for BroadcastMsgs<M> {
     type Store = BroadcastMsgsStore<M>;
 }
 
 /// Receives broadcast messages from every protocol participant
-pub struct BroadcastMsgsStore<M> {
+pub struct BroadcastMsgsStore<M: Clone> {
     party_i: u16,
     msgs: Vec<Option<M>>,
     msgs_left: usize,
 }
 
-impl<M> BroadcastMsgsStore<M> {
+impl<M: Clone> BroadcastMsgsStore<M> {
     /// Constructs store. Takes this party index and total number of parties.
     pub fn new(party_i: u16, parties_n: u16) -> Self {
         let parties_n = usize::from(parties_n);
@@ -103,9 +103,13 @@ impl<M> BroadcastMsgsStore<M> {
     pub fn messages_total(&self) -> usize {
         self.msgs.len()
     }
+
+    pub fn get_msgs(&self) -> Vec<Option<M>> {
+        self.msgs.clone()
+    }
 }
 
-impl<M> MessageStore for BroadcastMsgsStore<M> {
+impl<M: Clone> MessageStore for BroadcastMsgsStore<M> {
     type M = M;
     type Err = StoreErr;
     type Output = BroadcastMsgs<M>;
